@@ -81,6 +81,30 @@ canvas.fx { position: fixed; inset: 0; z-index: 52; pointer-events: none; width:
 .gate.opening .env-to, .gate.opening .tap-hint { opacity: 0; animation: none }
 .gate.opening .env-letter { transform: translateY(-36%); opacity: 1; transition: transform 1.2s .8s cubic-bezier(.3, .7, .2, 1), opacity .4s .6s }
 .gate.gone { opacity: 0; pointer-events: none; transition: opacity .9s .2s }
+/* plain link: ask the name first, then the envelope arrives addressed to them */
+.ask { position: absolute; left: 7%; right: 7%; top: 50%; z-index: 6; transform: translateY(-50%); padding: 34px 22px 22px; text-align: center; border-radius: 140px 140px 16px 16px;
+  background: rgba(251, 245, 234, .97); box-shadow: 0 0 0 1px rgba(184, 137, 59, .6), 0 0 0 7px rgba(251, 245, 234, .25), 0 30px 70px rgba(0, 0, 0, .5);
+  opacity: 0; pointer-events: none; transition: opacity .6s, transform .6s }
+.gate.asking .ask { opacity: 1; pointer-events: auto }
+.gate.asking .env-body, .gate.asking .tap-hint, .gate.asking .greet { opacity: 0; pointer-events: none }
+.gate.asking { cursor: default }
+.gate.asking .tap-hint { visibility: hidden; animation: none }
+.gate:not(.asking) .ask { transform: translateY(-50%) scale(.92) }
+.ask-seal { width: 64px; height: 64px; margin: 0 auto 10px; border-radius: 50%; display: grid; place-items: center; font: 26px var(--script); color: #f8e3a8;
+  background: radial-gradient(circle at 40% 35%, #e9c46f, #b8893b 55%, #7c5a22); box-shadow: 0 6px 12px rgba(80, 20, 20, .35) }
+.ask small { font: 600 11px var(--caps); letter-spacing: 5px; color: var(--gold) }
+.ask h3 { font: 38px/1.1 var(--script); color: var(--maroon); margin: 6px 0 16px; font-weight: 400 }
+.ask input { width: 100%; padding: 14px; border: 1px solid #d9bfa8; border-radius: 12px; background: #fff; text-align: center; font: 500 22px var(--serif); color: var(--ink) }
+.ask input:focus { outline: 2px solid var(--gold-hi); border-color: var(--gold) }
+.ask input.shake { animation: shake .4s }
+@keyframes shake { 25% { transform: translateX(-8px) } 75% { transform: translateX(8px) } }
+.ask .btn { width: 100%; margin-top: 12px }
+.ask a { display: inline-block; margin-top: 12px; padding: 6px; font: italic 500 15px var(--serif); color: #8a5a5f }
+.env-body, .tap-hint, .greet { transition: opacity .7s .2s }
+.gate.addressed .env-body { animation: arrive 1s cubic-bezier(.2, .8, .2, 1) }
+@keyframes arrive { from { transform: translateY(40px) scale(.94); opacity: 0 } }
+.gate.addressed .env-to b { animation: write 1.6s .5s ease-out both }
+@keyframes write { from { clip-path: inset(0 100% 0 0) } to { clip-path: inset(0 0 0 0) } }
 
 /* ---------- curtains ---------- */
 .curtains { position: fixed; inset: 0; z-index: 40; pointer-events: none; max-width: 440px; margin: 0 auto; overflow: hidden }
@@ -335,13 +359,18 @@ canvas.fx { position: fixed; inset: 0; z-index: 52; pointer-events: none; width:
 .ctl { position: fixed; z-index: 60; bottom: 18px; height: 46px; border-radius: 23px; border: 1px solid var(--gold); background: rgba(251, 245, 234, .94);
   color: var(--maroon); display: none; align-items: center; justify-content: center; gap: 7px; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); cursor: pointer; font: 600 10px var(--caps); letter-spacing: 2px }
 .ctl.show { display: flex }
-.music { right: max(14px, calc(50vw - 206px)); width: 46px }
 .tour { left: max(14px, calc(50vw - 206px)); padding: 0 16px }
-.eq { display: flex; gap: 2px; align-items: flex-end; height: 16px }
-.eq i { width: 3px; height: 4px; background: var(--maroon); border-radius: 1px }
-.music.playing .eq i { animation: eq .9s ease-in-out infinite alternate } .music.playing .eq i:nth-child(2) { animation-delay: -.3s } .music.playing .eq i:nth-child(3) { animation-delay: -.6s } .music.playing .eq i:nth-child(4) { animation-delay: -.15s }
-@keyframes eq { to { height: 16px } }
-.music:not(.playing)::after { content: ''; position: absolute; width: 26px; height: 2px; background: var(--maroon); transform: rotate(-45deg) }
+/* music: a small gold medallion like the seal; ripples while playing, ivory and still when muted */
+.music { top: max(14px, env(safe-area-inset-top)); bottom: auto; right: max(14px, calc(50vw - 206px)); width: 44px; height: 44px; border-radius: 50%; border: 0;
+  background: radial-gradient(circle at 38% 32%, #f1d48a, #c99a45 55%, #8a6a2f); box-shadow: 0 4px 12px rgba(60, 20, 10, .35), inset 0 0 0 1.5px rgba(255, 244, 210, .55); color: #fff8e6 }
+.music svg { width: 20px; height: 20px; position: relative; z-index: 1; filter: drop-shadow(0 1px 1px rgba(90, 50, 10, .45)) }
+.music::before, .music::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(230, 199, 122, .9); opacity: 0 }
+.music.playing::before { animation: ripple 2.4s ease-out infinite } .music.playing::after { animation: ripple 2.4s 1.2s ease-out infinite }
+@keyframes ripple { 0% { transform: scale(1); opacity: .9 } 100% { transform: scale(1.9); opacity: 0 } }
+.music.playing svg { animation: sway 1.2s ease-in-out infinite alternate }
+.music:not(.playing) { background: rgba(251, 245, 234, .95); color: var(--maroon); box-shadow: 0 4px 12px rgba(0, 0, 0, .25), inset 0 0 0 1.5px var(--gold) }
+.music:not(.playing) svg { opacity: .55; filter: none }
+.music:active { transform: scale(.92) }
 .toast { position: fixed; z-index: 61; left: 50%; bottom: 74px; transform: translate(-50%, 10px); padding: 8px 16px; border-radius: 20px; background: rgba(42, 6, 14, .85); color: #f4dc98;
   font: italic 500 15px var(--serif); opacity: 0; transition: all .5s; pointer-events: none; white-space: nowrap }
 .toast.show { opacity: 1; transform: translate(-50%, 0) }
@@ -382,6 +411,14 @@ canvas.fx { position: fixed; inset: 0; z-index: 52; pointer-events: none; width:
       </button>
     </div>
     <div class="tap-hint">TAP THE SEAL TO OPEN</div>
+    <form class="ask" id="ask" autocomplete="on">
+      <div class="ask-seal">S&amp;D</div>
+      <small>WELCOME</small>
+      <h3>Who is opening<br>this invitation?</h3>
+      <input id="askName" name="given-name" autocomplete="given-name" maxlength="40" placeholder="Your first name" aria-label="Your first name" enterkeyhint="go">
+      <button class="btn" type="submit">OPEN MY INVITATION</button>
+      <a href="#" id="askSkip">continue without a name</a>
+    </form>
   </div>
 
   <div class="curtains" id="curtains" hidden><div class="curtain l"></div><div class="curtain r"></div></div>
@@ -484,7 +521,7 @@ canvas.fx { position: fixed; inset: 0; z-index: 52; pointer-events: none; width:
 
   <!-- our story -->
   <section class="story obs" id="story" data-music="love" data-fx="petals" data-hold="6000">
-    <div class="kick line">CAPTURED IN GOA</div>
+    <div class="kick line">A LITTLE OF US</div>
     <h2 class="h line">Our Story</h2>
     <div class="archwrap">
       <div class="arch"><video id="storyvid" src="assets/story.mp4" poster="https://pdrseowccjbapvvfobwp.supabase.co/storage/v1/object/public/wedding-invite/v1/story-poster.webp" muted loop playsinline preload="none"></video></div>
@@ -551,7 +588,7 @@ canvas.fx { position: fixed; inset: 0; z-index: 52; pointer-events: none; width:
       <div class="deva line" lang="hi">॥ शुभ विवाह ॥</div>
       <div class="ttl line">The Wedding</div><p class="tag line">Seven vows, one forever</p>
       <span class="date line">Wednesday, 2nd December 2026</span>
-      <table class="line"><tr><td>Baraat &amp; Varmala</td><td>Morning</td></tr><tr><td>Phere</td><td>Morning</td></tr><tr><td>Dinner</td><td>Evening</td></tr></table>
+      <table class="line"><tr><td>Baraat &amp; Varmala</td><td>Morning</td></tr><tr><td>Phere</td><td>Afternoon</td></tr><tr><td>Dinner</td><td>Evening</td></tr></table>
       <dl class="line"><dt>Dress code:</dt> <dd>Royal Traditional</dd><dt>Venue:</dt> <dd>Hotel Ortus, Kota</dd></dl>
     </div>
     <div class="doors"><div class="door l"></div><div class="door r"></div></div>
@@ -569,7 +606,7 @@ canvas.fx { position: fixed; inset: 0; z-index: 52; pointer-events: none; width:
       <div class="ev line"><span>Sangeet</span><em>7:00 PM onwards</em></div>
       <div class="day line"><b>Day Two</b><span>Wednesday, 2nd December 2026</span></div>
       <div class="ev line"><span>Baraat &amp; Varmala</span><em>Morning</em></div>
-      <div class="ev line"><span>Phere</span><em>Morning</em></div>
+      <div class="ev line"><span>Phere</span><em>Afternoon</em></div>
       <div class="ev line"><span>Dinner</span><em>Evening</em></div>
     </div>
     <p class="vn line">All at Hotel Ortus, Kota</p>
@@ -637,7 +674,7 @@ canvas.fx { position: fixed; inset: 0; z-index: 52; pointer-events: none; width:
   </section>
 
   <button class="ctl tour" id="tour" aria-label="Auto scroll"><span id="tourIco">&#9654;</span><span id="tourTxt">AUTO PLAY</span></button>
-  <button class="ctl music" id="music" aria-label="Music on or off"><span class="eq"><i></i><i></i><i></i><i></i></span></button>
+  <button class="ctl music" id="music" aria-label="Music on or off"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10 4.5v10.1A3.6 3.6 0 1 0 12 18V9l7-2v6.6A3.6 3.6 0 1 0 21 17V2.5z"/></svg></button>
   <div class="toast" id="toast"></div>
 </div>
 
@@ -647,9 +684,12 @@ const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { ret
 
 // ---------- personal link: ?to=Arya (&side=bride puts Dimpy first, as on the bride-side cards) ----------
 const qs = new URLSearchParams(location.search);
-const guest = (qs.get('to') || '').replace(/[<>{}]/g, '').replace(/\s+/g, ' ').trim().slice(0, 48);
+const clean = (s) => (s || '').replace(/[<>{}]/g, '').replace(/\s+/g, ' ').trim().slice(0, 48);
+const linkGuest = clean(qs.get('to'));   // a personal link; a plain link asks at the gate instead
+let guest = '';
 const bride = qs.get('side') === 'bride';
-if (guest) {
+function applyGuest(name) {
+  guest = name;
   $$('.gname').forEach((el) => { el.textContent = guest; });
   $('#greet').hidden = false;
   const d = $('.lt-dear'); d.hidden = false; d.textContent = 'DEAR ' + guest.toUpperCase();
@@ -658,6 +698,22 @@ if (guest) {
   $('#rsvpName').textContent = ', ' + guest;
   $('#r-name').value = guest;
   const f = $('#finalePers'); f.hidden = false; f.textContent = guest + ', we can’t wait to celebrate with you.';
+}
+if (linkGuest) applyGuest(linkGuest);
+else {
+  // plain link: "Who is opening this invitation?" (remembered on this phone for next time)
+  $('#gate').classList.add('asking');
+  const ask = $('#ask'), inp = $('#askName');
+  inp.value = store.get('wi-guest') || '';
+  ask.addEventListener('submit', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const n = clean(inp.value);
+    if (!n) { inp.focus(); inp.classList.add('shake'); setTimeout(() => inp.classList.remove('shake'), 500); return; }
+    store.set('wi-guest', n); applyGuest(n); inp.blur();
+    $('#gate').classList.remove('asking'); $('#gate').classList.add('addressed');
+  });
+  $('#askSkip').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); $('#gate').classList.remove('asking'); });
+  ask.addEventListener('click', (e) => e.stopPropagation());
 }
 if (bride) {
   $$('.nA').forEach((el) => { el.textContent = 'Dimpy'; }); $$('.nB').forEach((el) => { el.textContent = 'Shwetang'; });
@@ -750,8 +806,8 @@ function silence(dur) {
 }
 const musicBtn = $('#music');
 musicBtn.addEventListener('click', () => {
-  if (cur) { userMuted = true; silence(.6); }
-  else { userMuted = false; unlockAudio(); playTrack(want); }
+  if (cur) { userMuted = true; silence(.6); toast('Music off'); }
+  else { userMuted = false; unlockAudio(); playTrack(want, true); toast('♪ Music on'); }
   store.set('wi-muted', userMuted ? '1' : '0');
 });
 // auto off when the phone is locked, the tab is hidden or Maps is opened; auto back on when they return
