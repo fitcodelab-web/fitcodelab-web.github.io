@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#3e0a14">
+<title>Who Is This Invite For?</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+/* "Who is this invite for?": the couple types a name and gets that guest's short personal link (4 Nov 2026).
+   Nothing is sent from here: the WhatsApp button only opens a draft. Links: <site>/#Name or <site>/#d/Name (Dimpy's side). */
+:root { --maroon: #7a1f2b; --wine: #5a1220; --gold: #b8893b; --gold-hi: #e6c77a; --ivory: #fbf5ea; --ink: #4a1a22 }
+* { box-sizing: border-box; margin: 0; padding: 0 }
+body { min-height: 100dvh; font: 500 17px 'Cormorant Garamond', serif; color: var(--ink); padding: 28px 16px 60px;
+  background: radial-gradient(90% 60% at 50% 30%, #7c1a2c, #4a0d19 60%, #2a060e) fixed }
+main { max-width: 460px; margin: 0 auto }
+.card { position: relative; background: var(--ivory); border-radius: 150px 150px 18px 18px; padding: 40px 22px 26px; text-align: center;
+  box-shadow: 0 0 0 1px rgba(184, 137, 59, .6), 0 0 0 7px rgba(251, 245, 234, .2), 0 30px 70px rgba(0, 0, 0, .5) }
+.seal { width: 60px; height: 60px; margin: 0 auto 10px; border-radius: 50%; display: grid; place-items: center; font: 26px 'Great Vibes', cursive; color: #f8e3a8;
+  background: radial-gradient(circle at 40% 35%, #e9c46f, #b8893b 55%, #7c5a22); box-shadow: 0 6px 12px rgba(80, 20, 20, .35) }
+small.k { font: 600 11px 'Cinzel', serif; letter-spacing: 5px; color: var(--gold) }
+h1 { font: 400 40px/1.1 'Great Vibes', cursive; color: var(--maroon); margin: 6px 0 18px }
+input[type=text], textarea { width: 100%; padding: 14px; border: 1px solid #d9bfa8; border-radius: 12px; background: #fff; font: 500 22px 'Cormorant Garamond', serif; color: var(--ink); text-align: center }
+textarea { font-size: 18px; text-align: left; min-height: 120px }
+input:focus, textarea:focus { outline: 2px solid var(--gold-hi); border-color: var(--gold) }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 0 }
+.seg label { position: relative }
+.seg input { position: absolute; opacity: 0 }
+.seg span { display: block; padding: 11px 6px; border: 1px solid #d9bfa8; border-radius: 12px; background: #fff; font: 600 16px 'Cormorant Garamond', serif; color: var(--wine); cursor: pointer }
+.seg input:checked + span { background: var(--maroon); color: #fbe9c8; border-color: var(--maroon) }
+.out { margin-top: 18px; display: none }
+.out.show { display: block }
+.link { padding: 12px; border-radius: 12px; background: #fff7ea; border: 1px dashed var(--gold); font: 600 17px 'Cormorant Garamond', serif; color: var(--maroon); word-break: break-all }
+.btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px }
+.btns a, .btns button { display: grid; place-items: center; min-height: 46px; border-radius: 23px; border: 1px solid var(--gold); background: #fff; color: var(--maroon);
+  font: 600 11px 'Cinzel', serif; letter-spacing: 1.5px; text-decoration: none; cursor: pointer }
+.btns .wa { background: #1f8f4e; border-color: #1f8f4e; color: #fff }
+details { margin-top: 20px; text-align: left }
+summary { cursor: pointer; font: 600 11px 'Cinzel', serif; letter-spacing: 3px; color: var(--gold); text-align: center; list-style: none }
+summary::-webkit-details-marker { display: none }
+.row { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: center; padding: 9px 0; border-bottom: 1px dashed rgba(184, 137, 59, .4) }
+.row b { font-weight: 600; overflow-wrap: anywhere }
+.row a, .row button { padding: 8px 12px; border-radius: 18px; border: 1px solid var(--gold); background: #fff; color: var(--maroon); font: 600 10px 'Cinzel', serif; letter-spacing: 1px; text-decoration: none; cursor: pointer }
+.row a.wa { background: #1f8f4e; border-color: #1f8f4e; color: #fff }
+label.t { display: block; font: 600 11px 'Cinzel', serif; letter-spacing: 2px; color: var(--maroon); margin: 14px 0 6px }
+.note { font: italic 500 15px 'Cormorant Garamond', serif; color: #8a5a5f; margin-top: 14px; text-align: center }
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <div class="seal">S&amp;D</div>
+    <small class="k">GUEST LINKS</small>
+    <h1>Who is this<br>invite for?</h1>
+    <input type="text" id="one" placeholder="First name, e.g. Arya" maxlength="40" autocomplete="off" enterkeyhint="done">
+    <div class="seg">
+      <label><input type="radio" name="side" value="groom" checked><span>Shwetang’s side</span></label>
+      <label><input type="radio" name="side" value="bride"><span>Dimpy’s side</span></label>
+    </div>
+    <div class="out" id="out1">
+      <div class="link" id="link1"></div>
+      <div class="btns">
+        <button id="copy1">COPY</button>
+        <a class="wa" id="wa1" target="_blank" rel="noopener">WHATSAPP</a>
+        <a id="prev1" target="_blank" rel="noopener">PREVIEW</a>
+      </div>
+    </div>
+
+    <details>
+      <summary>MANY GUESTS AT ONCE</summary>
+      <label class="t" for="names">ONE NAME PER LINE</label>
+      <textarea id="names" placeholder="Arya&#10;Sharma Family&#10;Neha"></textarea>
+      <div id="outN"></div>
+    </details>
+
+    <details>
+      <summary>EDIT THE WHATSAPP MESSAGE</summary>
+      <textarea id="msg" style="min-height:96px;margin-top:10px">Hey {name}! With great joy we invite you to our wedding celebrations, 1st & 2nd December 2026, Hotel Ortus, Kota. Your invitation: {link}</textarea>
+    </details>
+    <p class="note">WhatsApp opens a draft; you pick the chat and press send.<br>Replies reach the RSVP sheet with the name from the link.</p>
+  </div>
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+const base = new URL('../', location.href).href.replace(/\/$/, '/');
+const clean = (s) => s.replace(/[<>{}#/\\?&]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40);
+function linkFor(n) {
+  const side = document.querySelector('[name=side]:checked').value;
+  return base + '#' + (side === 'bride' ? 'd/' : '') + encodeURIComponent(n.replace(/ /g, '-')).replace(/%26/g, '&');
+}
+const msgFor = (n, l) => $('#msg').value.replaceAll('{name}', n).replaceAll('{link}', l);
+function one() {
+  const n = clean($('#one').value);
+  $('#out1').classList.toggle('show', !!n);
+  if (!n) return;
+  const l = linkFor(n);
+  $('#link1').textContent = l; $('#prev1').href = l;
+  $('#wa1').href = 'https://wa.me/?text=' + encodeURIComponent(msgFor(n, l));
+  $('#copy1').textContent = 'COPY';
+}
+function many() {
+  const out = $('#outN'); out.innerHTML = '';
+  for (const raw of $('#names').value.split('\n')) {
+    const n = clean(raw); if (!n) continue;
+    const l = linkFor(n), row = document.createElement('div'); row.className = 'row';
+    const b = document.createElement('b'); b.textContent = n;
+    const c = document.createElement('button'); c.textContent = 'COPY';
+    c.onclick = () => copy(l, c);
+    const w = document.createElement('a'); w.className = 'wa'; w.target = '_blank'; w.rel = 'noopener'; w.textContent = 'WHATSAPP';
+    w.href = 'https://wa.me/?text=' + encodeURIComponent(msgFor(n, l));
+    row.append(b, c, w); out.append(row);
+  }
+}
+async function copy(t, btn) { try { await navigator.clipboard.writeText(t); btn.textContent = 'COPIED'; } catch (e) { prompt('Copy this link', t); } }
+$('#copy1').onclick = () => copy($('#link1').textContent, $('#copy1'));
+['input', 'change'].forEach((e) => document.addEventListener(e, () => { one(); many(); }));
+one();
+</script>
+</body>
+</html>
