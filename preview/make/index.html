@@ -57,6 +57,7 @@ label.t { display: block; font: 600 11px 'Cinzel', serif; letter-spacing: 2px; c
     <div class="seg" style="margin-bottom:0">
       <label><input type="radio" name="inv" value="wedding" checked><span>Wedding invite</span></label>
       <label><input type="radio" name="inv" value="reception"><span>Nagpur reception</span></label>
+      <label><input type="radio" name="inv" value="dimpy"><span>Sangeet &amp; Dinner</span></label>
     </div>
     <div class="seg" id="sideSeg">
       <label><input type="radio" name="side" value="groom" checked><span>Shwetang’s side</span></label>
@@ -90,13 +91,15 @@ const $ = (s) => document.querySelector(s);
 const base = new URL('../', location.href).href.replace(/\/$/, '/');
 const clean = (s) => s.replace(/[<>{}#/\\?&]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40);
 function linkFor(n) {
-  const side = document.querySelector('[name=side]:checked').value, rec = invite() === 'reception';
-  return base + (rec ? 'reception/' : '') + '#' + (!rec && side === 'bride' ? 'd/' : '') + encodeURIComponent(n.replace(/ /g, '-')).replace(/%26/g, '&');
+  const side = document.querySelector('[name=side]:checked').value, inv = invite();
+  const dir = inv === 'reception' ? 'reception/' : inv === 'dimpy' ? 'dimpy/' : '';
+  return base + dir + '#' + (inv === 'wedding' && side === 'bride' ? 'd/' : '') + encodeURIComponent(n.replace(/ /g, '-')).replace(/%26/g, '&');
 }
 const invite = () => document.querySelector('[name=inv]:checked').value;
 const MSG = { wedding: 'Hey {name}! With great joy we invite you to our wedding celebrations, 1st & 2nd December 2026, Hotel Ortus, Kota. Your invitation: {link}',
-  reception: 'Hey {name}! With great joy we invite you to our Wedding Reception, Sunday, 6th December 2026, 7:00 PM onwards, Club House, Mahalaxmi Society, Nagpur. Your invitation: {link}' };
-document.querySelectorAll('[name=inv]').forEach((r) => r.addEventListener('change', () => { $('#msg').value = MSG[invite()]; $('#sideSeg').style.display = invite() === 'reception' ? 'none' : ''; }));
+  reception: 'Hey {name}! With great joy we invite you to our Wedding Reception, Sunday, 6th December 2026, 7:00 PM onwards, Club House, Mahalaxmi Society, Nagpur. Your invitation: {link}',
+  dimpy: 'Hey {name}! With great joy we invite you to the Sangeet and Ring Ceremony on 1st December and the Wedding Dinner on 2nd December 2026, Hotel Ortus, Kota. Your invitation: {link}' };
+document.querySelectorAll('[name=inv]').forEach((r) => r.addEventListener('change', () => { $('#msg').value = MSG[invite()]; $('#sideSeg').style.display = invite() === 'wedding' ? '' : 'none'; }));
 const msgFor = (n, l) => $('#msg').value.replaceAll('{name}', n).replaceAll('{link}', l);
 function one() {
   const n = clean($('#one').value);
