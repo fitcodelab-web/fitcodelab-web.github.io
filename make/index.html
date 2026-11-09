@@ -95,24 +95,24 @@ label.t { display: block; font: 600 11px 'Cinzel', serif; letter-spacing: 2px; c
 <script>
 const $ = (s) => document.querySelector(s);
 const base = new URL('../', location.href).href.replace(/\/$/, '/');
-const clean = (s) => s.replace(/[<>{}#/\\?&]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40);
+const clean = (s) => s.replace(/[<>{}#/\\?]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40);
 // every invite each side sends (10 Nov 2026). path = page on the site, hash = '' or 'd/' (Dimpy first on the full wedding invite)
 const KOTA = 'Hotel Ortus, Kota';
 const OPTS = {
   groom: [
-    { id: 'g-full', label: 'Full wedding, Kota', what: 'Haldi, Mehendi, Sangeet & Ring Ceremony, Wedding', path: '', hash: '',
+    { id: 'g-full', kind: 'full', label: 'Full wedding, Kota', what: 'Haldi, Mehendi, Sangeet & Ring Ceremony, Wedding', path: '', hash: '',
       msg: 'Hey {name}! With great joy we invite you to our wedding celebrations, 1st & 2nd December 2026, ' + KOTA + '. Your invitation: {link}' },
-    { id: 'g-kota', label: 'Sangeet & Wedding Dinner, Kota', what: 'Sangeet & Ring Ceremony 1st Dec, Wedding Dinner 2nd Dec', path: 'kota/', hash: '',
+    { id: 'g-kota', kind: 'sd', label: 'Sangeet & Wedding Dinner, Kota', what: 'Sangeet & Ring Ceremony 1st Dec, Wedding Dinner 2nd Dec', path: 'kota/', hash: '',
       msg: 'Hey {name}! With great joy we invite you to the Sangeet and Ring Ceremony on 1st December and the Wedding Dinner on 2nd December 2026, ' + KOTA + '. Your invitation: {link}' },
-    { id: 'g-rec', label: 'Reception, Nagpur', what: 'Sunday, 6th December, 7:00 PM onwards', path: 'reception/', hash: '',
+    { id: 'g-rec', kind: 'rec', label: 'Reception, Nagpur', what: 'Sunday, 6th December, 7:00 PM onwards', path: 'reception/', hash: '',
       msg: 'Hey {name}! With great joy we invite you to our Wedding Reception, Sunday, 6th December 2026, 7:00 PM onwards, Club House, Mahalaxmi Society, Nagpur. Your invitation: {link}' },
   ],
   bride: [
-    { id: 'b-full', label: 'Full wedding, Kota', what: 'Haldi, Mehendi, Sangeet & Ring Ceremony, Wedding', path: '', hash: 'd/',
+    { id: 'b-full', kind: 'full', label: 'Full wedding, Kota', what: 'Haldi, Mehendi, Sangeet & Ring Ceremony, Wedding', path: '', hash: 'd/',
       msg: 'Hey {name}! With great joy we invite you to our wedding celebrations, 1st & 2nd December 2026, ' + KOTA + '. Your invitation: {link}' },
-    { id: 'b-sd', label: 'Sangeet & Wedding Dinner, Kota', what: 'Sangeet & Ring Ceremony 1st Dec, Wedding Dinner 2nd Dec', path: 'dimpy/', hash: '',
+    { id: 'b-sd', kind: 'sd', label: 'Sangeet & Wedding Dinner, Kota', what: 'Sangeet & Ring Ceremony 1st Dec, Wedding Dinner 2nd Dec', path: 'dimpy/', hash: '',
       msg: 'Hey {name}! With great joy we invite you to the Sangeet and Ring Ceremony on 1st December and the Wedding Dinner on 2nd December 2026, ' + KOTA + '. Your invitation: {link}' },
-    { id: 'b-dinner', label: 'Wedding Dinner only, Kota', what: 'Wednesday, 2nd December, 7:30 PM onwards', path: 'dinner/', hash: '',
+    { id: 'b-dinner', kind: 'dinner', label: 'Wedding Dinner only, Kota', what: 'Wednesday, 2nd December, 7:30 PM onwards', path: 'dinner/', hash: '',
       msg: 'Hey {name}! With great joy we invite you to the Wedding Dinner on Wednesday, 2nd December 2026, 7:30 PM onwards, ' + KOTA + '. Your invitation: {link}' },
   ],
 };
@@ -120,11 +120,12 @@ const side = () => document.querySelector('[name=side]:checked').value;
 const opt = () => { const v = (document.querySelector('[name=inv]:checked') || {}).value; return OPTS[side()].find((o) => o.id === v) || OPTS[side()][0]; };
 function linkFor(n) {
   const o = opt();
-  return base + o.path + '#' + o.hash + encodeURIComponent(n.replace(/ /g, '-')).replace(/%26/g, '&');
+  return base + o.path + '#' + o.hash + encodeURIComponent(n.replace(/ /g, '-'));
 }
 function drawOpts(keep) {
   const box = $('#opts'), was = keep && document.querySelector('[name=inv]:checked');
-  const idx = was ? OPTS[was.dataset.side].findIndex((o) => o.id === was.value) : 0;
+  const prev = was ? OPTS[was.dataset.side].find((o) => o.id === was.value) : null;
+  const idx = prev ? OPTS[side()].findIndex((o) => o.kind === prev.kind) : 0;
   box.innerHTML = '';
   OPTS[side()].forEach((o, i) => {
     const l = document.createElement('label'), r = document.createElement('input'), s = document.createElement('span'), sm = document.createElement('small');
