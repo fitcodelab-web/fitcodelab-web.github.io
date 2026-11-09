@@ -29,6 +29,15 @@ input:focus, textarea:focus { outline: 2px solid var(--gold-hi); border-color: v
 .seg input { position: absolute; opacity: 0 }
 .seg span { display: block; padding: 11px 6px; border: 1px solid #d9bfa8; border-radius: 12px; background: #fff; font: 600 16px 'Cormorant Garamond', serif; color: var(--wine); cursor: pointer }
 .seg input:checked + span { background: var(--maroon); color: #fbe9c8; border-color: var(--maroon) }
+.opts { display: grid; gap: 8px; margin-top: 10px }
+.opts label { position: relative }
+.opts input { position: absolute; opacity: 0 }
+.opts span { display: block; padding: 11px 12px; border: 1px solid #d9bfa8; border-radius: 12px; background: #fff; font: 600 17px 'Cormorant Garamond', serif; color: var(--wine); cursor: pointer }
+.opts span small { display: block; font: italic 500 14px 'Cormorant Garamond', serif; color: #8a5a5f }
+.opts input:checked + span { background: var(--maroon); color: #fbe9c8; border-color: var(--maroon) }
+.opts input:checked + span small { color: #f1d9b5 }
+.opts input:focus-visible + span { outline: 2px solid var(--gold-hi) }
+.what { font: italic 500 15px 'Cormorant Garamond', serif; color: #8a5a5f; margin-top: 8px }
 .out { margin-top: 18px; display: none }
 .out.show { display: block }
 .link { padding: 12px; border-radius: 12px; background: #fff7ea; border: 1px dashed var(--gold); font: 600 17px 'Cormorant Garamond', serif; color: var(--maroon); word-break: break-all }
@@ -54,15 +63,12 @@ label.t { display: block; font: 600 11px 'Cinzel', serif; letter-spacing: 2px; c
     <small class="k">GUEST LINKS</small>
     <h1>Who is this<br>invite for?</h1>
     <input type="text" id="one" placeholder="First name, e.g. Arya" maxlength="40" autocomplete="off" enterkeyhint="done">
-    <div class="seg" style="margin-bottom:0">
-      <label><input type="radio" name="inv" value="wedding" checked><span>Wedding invite</span></label>
-      <label><input type="radio" name="inv" value="reception"><span>Nagpur reception</span></label>
-      <label><input type="radio" name="inv" value="dimpy"><span>Sangeet &amp; Dinner</span></label>
-    </div>
-    <div class="seg" id="sideSeg">
+    <div class="seg">
       <label><input type="radio" name="side" value="groom" checked><span>Shwetang’s side</span></label>
       <label><input type="radio" name="side" value="bride"><span>Dimpy’s side</span></label>
     </div>
+    <div class="opts" id="opts"></div>
+    <p class="what" id="what"></p>
     <div class="out" id="out1">
       <div class="link" id="link1"></div>
       <div class="btns">
@@ -90,16 +96,47 @@ label.t { display: block; font: 600 11px 'Cinzel', serif; letter-spacing: 2px; c
 const $ = (s) => document.querySelector(s);
 const base = new URL('../', location.href).href.replace(/\/$/, '/');
 const clean = (s) => s.replace(/[<>{}#/\\?&]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40);
+// every invite each side sends (10 Nov 2026). path = page on the site, hash = '' or 'd/' (Dimpy first on the full wedding invite)
+const KOTA = 'Hotel Ortus, Kota';
+const OPTS = {
+  groom: [
+    { id: 'g-full', label: 'Full wedding, Kota', what: 'Haldi, Mehendi, Sangeet & Ring Ceremony, Wedding', path: '', hash: '',
+      msg: 'Hey {name}! With great joy we invite you to our wedding celebrations, 1st & 2nd December 2026, ' + KOTA + '. Your invitation: {link}' },
+    { id: 'g-kota', label: 'Sangeet & Wedding Dinner, Kota', what: 'Sangeet & Ring Ceremony 1st Dec, Wedding Dinner 2nd Dec', path: 'kota/', hash: '',
+      msg: 'Hey {name}! With great joy we invite you to the Sangeet and Ring Ceremony on 1st December and the Wedding Dinner on 2nd December 2026, ' + KOTA + '. Your invitation: {link}' },
+    { id: 'g-rec', label: 'Reception, Nagpur', what: 'Sunday, 6th December, 7:00 PM onwards', path: 'reception/', hash: '',
+      msg: 'Hey {name}! With great joy we invite you to our Wedding Reception, Sunday, 6th December 2026, 7:00 PM onwards, Club House, Mahalaxmi Society, Nagpur. Your invitation: {link}' },
+  ],
+  bride: [
+    { id: 'b-full', label: 'Full wedding, Kota', what: 'Haldi, Mehendi, Sangeet & Ring Ceremony, Wedding', path: '', hash: 'd/',
+      msg: 'Hey {name}! With great joy we invite you to our wedding celebrations, 1st & 2nd December 2026, ' + KOTA + '. Your invitation: {link}' },
+    { id: 'b-sd', label: 'Sangeet & Wedding Dinner, Kota', what: 'Sangeet & Ring Ceremony 1st Dec, Wedding Dinner 2nd Dec', path: 'dimpy/', hash: '',
+      msg: 'Hey {name}! With great joy we invite you to the Sangeet and Ring Ceremony on 1st December and the Wedding Dinner on 2nd December 2026, ' + KOTA + '. Your invitation: {link}' },
+    { id: 'b-dinner', label: 'Wedding Dinner only, Kota', what: 'Wednesday, 2nd December, 7:30 PM onwards', path: 'dinner/', hash: '',
+      msg: 'Hey {name}! With great joy we invite you to the Wedding Dinner on Wednesday, 2nd December 2026, 7:30 PM onwards, ' + KOTA + '. Your invitation: {link}' },
+  ],
+};
+const side = () => document.querySelector('[name=side]:checked').value;
+const opt = () => { const v = (document.querySelector('[name=inv]:checked') || {}).value; return OPTS[side()].find((o) => o.id === v) || OPTS[side()][0]; };
 function linkFor(n) {
-  const side = document.querySelector('[name=side]:checked').value, inv = invite();
-  const dir = inv === 'reception' ? 'reception/' : inv === 'dimpy' ? 'dimpy/' : '';
-  return base + dir + '#' + (inv === 'wedding' && side === 'bride' ? 'd/' : '') + encodeURIComponent(n.replace(/ /g, '-')).replace(/%26/g, '&');
+  const o = opt();
+  return base + o.path + '#' + o.hash + encodeURIComponent(n.replace(/ /g, '-')).replace(/%26/g, '&');
 }
-const invite = () => document.querySelector('[name=inv]:checked').value;
-const MSG = { wedding: 'Hey {name}! With great joy we invite you to our wedding celebrations, 1st & 2nd December 2026, Hotel Ortus, Kota. Your invitation: {link}',
-  reception: 'Hey {name}! With great joy we invite you to our Wedding Reception, Sunday, 6th December 2026, 7:00 PM onwards, Club House, Mahalaxmi Society, Nagpur. Your invitation: {link}',
-  dimpy: 'Hey {name}! With great joy we invite you to the Sangeet and Ring Ceremony on 1st December and the Wedding Dinner on 2nd December 2026, Hotel Ortus, Kota. Your invitation: {link}' };
-document.querySelectorAll('[name=inv]').forEach((r) => r.addEventListener('change', () => { $('#msg').value = MSG[invite()]; $('#sideSeg').style.display = invite() === 'wedding' ? '' : 'none'; }));
+function drawOpts(keep) {
+  const box = $('#opts'), was = keep && document.querySelector('[name=inv]:checked');
+  const idx = was ? OPTS[was.dataset.side].findIndex((o) => o.id === was.value) : 0;
+  box.innerHTML = '';
+  OPTS[side()].forEach((o, i) => {
+    const l = document.createElement('label'), r = document.createElement('input'), s = document.createElement('span'), sm = document.createElement('small');
+    r.type = 'radio'; r.name = 'inv'; r.value = o.id; r.dataset.side = side(); r.checked = i === Math.max(0, idx);
+    s.textContent = o.label; sm.textContent = o.what; s.append(sm); l.append(r, s); box.append(l);
+    r.addEventListener('change', setMsg);
+  });
+  setMsg();
+}
+function setMsg() { const o = opt(); $('#msg').value = o.msg; $('#what').textContent = ''; }
+document.querySelectorAll('[name=side]').forEach((r) => r.addEventListener('change', () => drawOpts(true)));
+drawOpts(false);
 const msgFor = (n, l) => $('#msg').value.replaceAll('{name}', n).replaceAll('{link}', l);
 function one() {
   const n = clean($('#one').value);
